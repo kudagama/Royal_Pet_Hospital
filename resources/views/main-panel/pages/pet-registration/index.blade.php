@@ -41,7 +41,7 @@
                 class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox cursor-pointer">
                 <div class="card flex flex-col items-center justify-center p-4">
                     <img src="{{ asset('images/main-panel/btn-icons/add-item.svg') }}"
-                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px] mb-2" alt="">
+                        class="w-[80px] h-[80px] max-xl:w-[50px] max-xl:h-[50px] mb-2" alt="">
                     <p class="text-center mt-2">Register Pet</p>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                 class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox cursor-pointer">
                 <div class="card flex flex-col items-center justify-center p-4">
                     <img src="{{ asset('images/main-panel/btn-icons/view-item.svg') }}"
-                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px] mb-2" alt="">
+                        class="w-[80px] h-[80px] max-xl:w-[50px] max-xl:h-[50px] mb-2" alt="">
                     <p class="text-center mt-2">Pet List</p>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 <div class="card flex flex-col items-center justify-center p-4">
                     <img src="{{ asset('images/main-panel/btn-icons/items.svg') }}"
                         onerror="this.src='{{ asset('images/main-panel/btn-icons/view-item.svg') }}'"
-                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px] mb-2" alt="">
+                        class="w-[80px] h-[80px] max-xl:w-[50px] max-xl:h-[50px] mb-2" alt="">
                     <p class="text-center mt-2">Manage Categories</p>
                 </div>
             </div>

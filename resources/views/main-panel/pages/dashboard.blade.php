@@ -45,7 +45,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                    <i class="bi bi-people-fill text-2xl"></i>
+                    <i class="bi bi-people-fill text-xl"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Total Pets</p>
@@ -54,7 +54,7 @@
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
-                    <i class="bi bi-calendar-check text-2xl"></i>
+                    <i class="bi bi-calendar-check text-xl"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Daily Bookings</p>
@@ -63,7 +63,7 @@
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
-                    <i class="bi bi-cash-stack text-2xl"></i>
+                    <i class="bi bi-cash-stack text-xl"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Today's Revenue</p>
@@ -72,7 +72,7 @@
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600">
-                    <i class="bi bi-exclamation-triangle text-2xl"></i>
+                    <i class="bi bi-exclamation-triangle text-xl"></i>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 font-medium">Low Stock Items</p>

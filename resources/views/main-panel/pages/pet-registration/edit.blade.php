@@ -1,6 +1,6 @@
 @extends('main-panel.layouts.main')
 
-@section('title', 'Application | Register Pet')
+@section('title', 'Application | Edit Pet')
 
 @section('content')
 <div class="flex-grow flex flex-col w-full bg-gray-50">
@@ -29,7 +29,7 @@
                 <li aria-current="page">
                     <div class="flex items-center">
                         <i class="bi bi-chevron-right text-gray-400 mx-1"></i>
-                        <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2">Register Pet</span>
+                        <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2">Edit Pet</span>
                     </div>
                 </li>
             </ol>
@@ -41,8 +41,8 @@
         
         <div class="flex items-center justify-between mb-6">
             <div>
-                 <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">New Pet Registration</h1>
-                 <p class="text-gray-500 mt-1">Register a new pet into the system.</p>
+                 <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">Edit Pet Confirmation</h1>
+                 <p class="text-gray-500 mt-1">Update details for <span class="font-bold text-blue-600">{{ $pet->name }}</span> ({{ $pet->code }})</p>
             </div>
              <a href="{{ route('pet-registration.list') }}" class="text-gray-500 hover:text-gray-700 font-medium text-sm flex items-center">
                 <i class="bi bi-arrow-left me-2"></i> Back to List
@@ -69,8 +69,9 @@
             </div>
         @endif
 
-        <form action="{{ route('pet-registration.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <form action="{{ route('pet-registration.update', $pet->id) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
             @csrf
+            @method('PUT')
             
             <div class="p-8">
                  <!-- Section: Owner Details -->
@@ -86,7 +87,7 @@
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <i class="bi bi-person"></i>
                                 </span>
-                                <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name') }}"
+                                <input type="text" id="owner_name" name="owner_name" value="{{ old('owner_name', $pet->owner_name) }}"
                                     class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors"
                                     placeholder="Enter owner name" required />
                             </div>
@@ -97,7 +98,7 @@
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <i class="bi bi-telephone"></i>
                                 </span>
-                                <input type="text" id="owner_phone" name="owner_phone" value="{{ old('owner_phone') }}"
+                                <input type="text" id="owner_phone" name="owner_phone" value="{{ old('owner_phone', $pet->owner_phone) }}"
                                     class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors"
                                     placeholder="Enter owner phone number" />
                             </div>
@@ -118,18 +119,22 @@
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <i class="bi bi-tag"></i>
                                 </span>
-                                <input type="text" id="pet_name" name="pet_name" value="{{ old('pet_name') }}"
+                                <input type="text" id="pet_name" name="pet_name" value="{{ old('pet_name', $pet->name) }}"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors"
                                     placeholder="Enter pet name" required />
                             </div>
                         </div>
                         <div>
                             <label for="pet_age" class="block mb-2 text-sm font-semibold text-gray-700">Age (years) <span class="text-red-500">*</span></label>
+                             @php
+                                $age = \Carbon\Carbon::parse($pet->date_of_birth)->diffInMonths(now()) / 12;
+                                $age = round($age, 1);
+                            @endphp
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <i class="bi bi-calendar-event"></i>
                                 </span>
-                                <input type="number" id="pet_age" name="pet_age" min="0" step="0.1" value="{{ old('pet_age') }}"
+                                <input type="number" id="pet_age" name="pet_age" min="0" step="0.1" value="{{ old('pet_age', $age) }}"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 transition-colors"
                                     placeholder="Enter age" required />
                             </div>
@@ -144,7 +149,7 @@
                                 required>
                                 <option value="">Select a species</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('pet_category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}" {{ old('pet_category_id', $pet->pet_category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -168,7 +173,7 @@
                         <label for="description" class="block mb-2 text-sm font-semibold text-gray-700">Description</label>
                         <textarea id="description" name="description"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            placeholder="Brief description about the pet (e.g., allergies, behavior)" rows="3">{{ old('description') }}</textarea>
+                            placeholder="Brief description about the pet (e.g., allergies, behavior)" rows="3">{{ old('description', $pet->description) }}</textarea>
                     </div>
                 </div>
 
@@ -182,7 +187,7 @@
                         <label for="dropzone-file" id="dropzone-label"
                             class="flex flex-col items-center justify-center w-full flex-grow border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-300 transition-all relative overflow-hidden h-72">
                             
-                             <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center p-4" id="upload-placeholder">
+                             <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center p-4 {{ $pet->image ? 'hidden' : '' }}" id="upload-placeholder">
                                 <div class="bg-white p-3 rounded-full shadow-sm mb-3">
                                      <i class="bi bi-cloud-arrow-up text-3xl text-blue-500"></i>
                                 </div>
@@ -190,11 +195,11 @@
                                 <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                             </div>
 
-                            <img id="image-preview" src="#" alt="Preview"
-                                class="hidden absolute inset-0 w-full h-full object-contain bg-gray-100 p-2" />
+                            <img id="image-preview" src="{{ $pet->image ? asset('storage/' . $pet->image) : '#' }}" alt="Preview"
+                                class="{{ $pet->image ? '' : 'hidden' }} absolute inset-0 w-full h-full object-contain bg-gray-100 p-2" />
                                 
                             <!-- Hover Overlay for Replace -->
-                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity z-10" id="hover-overlay">
+                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity z-10">
                                 <p class="text-white font-semibold"><i class="bi bi-camera me-2"></i> Change Image</p>
                             </div>
 
@@ -205,11 +210,11 @@
             </div>
             
             <div class="bg-gray-50 px-8 py-6 flex justify-end gap-4 border-t border-gray-100">
-                <button type="reset"
-                    class="py-2.5 px-6 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all font-semibold shadow-sm">Reset Form</button>
+                <a href="{{ route('pet-registration.list') }}"
+                    class="py-2.5 px-6 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all font-semibold shadow-sm">Cancel</a>
                 <button type="submit"
                     class="py-2.5 px-8 bg-[#0b2b64] text-white rounded-lg hover:bg-blue-800 transition-all font-semibold shadow-md flex items-center">
-                    <i class="bi bi-check-lg me-2"></i> Register Pet
+                    <i class="bi bi-save me-2"></i> Update Pet
                 </button>
             </div>
         </form>
@@ -224,6 +229,7 @@
     function updateBreeds() {
         const categoryId = document.getElementById('pet_species').value;
         const breedSelect = document.getElementById('pet_breed');
+        const currentBreedId = breedSelect.value; 
         
         breedSelect.innerHTML = '<option value="">Select a breed</option>';
 
@@ -241,7 +247,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const oldCategory = "{{ old('pet_category_id') }}";
+        // Pre-fill logic with PHP injected value for old or current ID
+        // Note: Logic needs to handle if breed belongs to category.
+        
+        const oldCategory = "{{ old('pet_category_id', $pet->pet_category_id) }}";
+        const oldBreed = "{{ old('pet_breed_id', $pet->pet_breed_id) }}";
+        
         if(oldCategory) {
             // Manually trigger population
             const categoryId = document.getElementById('pet_species').value;
@@ -255,7 +266,7 @@
                         const option = document.createElement('option');
                         option.value = breed.id;
                         option.textContent = breed.name;
-                        if(breed.id == "{{ old('pet_breed_id') }}") option.selected = true;
+                        if(breed.id == oldBreed) option.selected = true;
                         breedSelect.appendChild(option);
                     });
                 }
@@ -270,7 +281,6 @@
     function previewImage(input) {
         const preview = document.getElementById('image-preview');
         const placeholder = document.getElementById('upload-placeholder');
-        const overlay = document.getElementById('hover-overlay');
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -278,9 +288,7 @@
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                // Show overlay on hover when image is present
-                preview.parentElement.classList.add('group');
+                if(placeholder) placeholder.classList.add('hidden');
             }
             
             reader.readAsDataURL(input.files[0]);
