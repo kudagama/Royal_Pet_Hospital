@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Allergies</title>
+    <link rel="icon" href="../../images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../styles/common.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .allergies-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="allergies-card max-w-4xl w-full rounded-2xl shadow-2xl p-8 md:p-12">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-block px-6 py-2 rounded-full text-white font-semibold mb-4 bg-gradient-to-r from-orange-500 to-red-500">
+                ⚠️ Manage Allergies
+            </div>
+        </div>
+
+        <!-- Pet Info -->
+        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl shadow-md mb-8">
+            <div class="flex items-center gap-4">
+                <img id="petImage" src="" alt="Pet" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+                <div>
+                    <h2 id="petName" class="text-2xl font-bold text-gray-800"></h2>
+                    <p id="petCode" class="text-gray-600 font-mono"></p>
+                    <p id="petBreed" class="text-sm text-gray-600"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Allergy -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                </svg>
+                Add New Allergy
+            </h3>
+            <div class="flex gap-3">
+                <input type="text" id="newAllergyInput" placeholder="Enter allergy name (e.g., Chicken, Pollen, Dust)" 
+                    class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
+                    onkeypress="if(event.key === 'Enter') addAllergy()">
+                <button onclick="addAllergy()" 
+                    class="px-6 py-2 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                    Add
+                </button>
+            </div>
+        </div>
+
+        <!-- Allergies List -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                Known Allergies <span id="allergyCount" class="ml-2 text-sm text-gray-500">(0)</span>
+            </h3>
+            <div id="allergiesList" class="space-y-3">
+                <!-- Allergies will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between gap-4">
+            <button onclick="window.location.href='list.html'" 
+                class="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                ← Back to List
+            </button>
+            <button onclick="saveAndViewProfile()" 
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                View Profile →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get pet code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const petCode = urlParams.get('code');
+
+        let pets = JSON.parse(localStorage.getItem('pets')) || [];
+        let currentPet = null;
+
+        // Load pet data
+        function loadPetData() {
+            currentPet = pets.find(p => p.code === petCode);
+
+            if (!currentPet) {
+                alert('Pet not found!');
+                window.location.href = 'list.html';
+                return;
+            }
+
+            // Display pet information
+            document.getElementById('petImage').src = currentPet.image || '';
+            document.getElementById('petName').textContent = currentPet.name;
+            document.getElementById('petCode').textContent = currentPet.code;
+            document.getElementById('petBreed').textContent = `${currentPet.breed} • ${currentPet.age} years`;
+            document.title = `Manage Allergies - ${currentPet.name}`;
+
+            // Initialize allergies array if it doesn't exist
+            if (!currentPet.allergies) {
+                currentPet.allergies = [];
+            }
+
+            // Load allergies
+            loadAllergies();
+        }
+
+        // Load and display allergies
+        function loadAllergies() {
+            const allergiesList = document.getElementById('allergiesList');
+            const allergies = currentPet.allergies || [];
+
+            document.getElementById('allergyCount').textContent = `(${allergies.length})`;
+
+            if (allergies.length === 0) {
+                allergiesList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="text-lg">No allergies recorded</p>
+                        <p class="text-sm mt-1">Add allergies using the form above</p>
+                    </div>
+                `;
+            } else {
+                allergiesList.innerHTML = allergies.map((allergy, index) => `
+                    <div class="flex items-center justify-between bg-red-50 border-2 border-red-200 p-4 rounded-lg hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-3 flex-1">
+                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-lg font-semibold text-gray-800" id="allergy-text-${index}">${allergy}</span>
+                            <input type="text" id="allergy-edit-${index}" value="${allergy}" 
+                                class="hidden flex-1 px-3 py-1 border-2 border-orange-300 rounded-lg focus:outline-none focus:border-orange-500">
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="edit-btn-${index}" onclick="editAllergy(${index})" 
+                                class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                Edit
+                            </button>
+                            <button id="save-btn-${index}" onclick="saveAllergy(${index})" 
+                                class="hidden px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                                Save
+                            </button>
+                            <button id="cancel-btn-${index}" onclick="cancelEdit(${index})" 
+                                class="hidden px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                                Cancel
+                            </button>
+                            <button onclick="deleteAllergy(${index})" 
+                                class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Add new allergy
+        function addAllergy() {
+            const input = document.getElementById('newAllergyInput');
+            const allergyName = input.value.trim();
+
+            if (!allergyName) {
+                alert('Please enter an allergy name');
+                return;
+            }
+
+            // Check for duplicates
+            if (currentPet.allergies.includes(allergyName)) {
+                alert('This allergy is already in the list');
+                return;
+            }
+
+            // Add to allergies array
+            currentPet.allergies.push(allergyName);
+
+            // Update localStorage
+            const petIndex = pets.findIndex(p => p.code === petCode);
+            pets[petIndex] = currentPet;
+            localStorage.setItem('pets', JSON.stringify(pets));
+
+            // Clear input and reload list
+            input.value = '';
+            loadAllergies();
+
+            // Show success message
+            showNotification('Allergy added successfully!', 'success');
+        }
+
+        // Edit allergy
+        function editAllergy(index) {
+            const textSpan = document.getElementById(`allergy-text-${index}`);
+            const editInput = document.getElementById(`allergy-edit-${index}`);
+            const editBtn = document.getElementById(`edit-btn-${index}`);
+            const saveBtn = document.getElementById(`save-btn-${index}`);
+            const cancelBtn = document.getElementById(`cancel-btn-${index}`);
+
+            textSpan.classList.add('hidden');
+            editInput.classList.remove('hidden');
+            editBtn.classList.add('hidden');
+            saveBtn.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+
+            editInput.focus();
+        }
+
+        // Save edited allergy
+        function saveAllergy(index) {
+            const editInput = document.getElementById(`allergy-edit-${index}`);
+            const newValue = editInput.value.trim();
+
+            if (!newValue) {
+                alert('Allergy name cannot be empty');
+                return;
+            }
+
+            // Check for duplicates (excluding current index)
+            const duplicateIndex = currentPet.allergies.findIndex((a, i) => a === newValue && i !== index);
+            if (duplicateIndex !== -1) {
+                alert('This allergy already exists in the list');
+                return;
+            }
+
+            // Update allergy
+            currentPet.allergies[index] = newValue;
+
+            // Update localStorage
+            const petIndex = pets.findIndex(p => p.code === petCode);
+            pets[petIndex] = currentPet;
+            localStorage.setItem('pets', JSON.stringify(pets));
+
+            // Reload list
+            loadAllergies();
+
+            showNotification('Allergy updated successfully!', 'success');
+        }
+
+        // Cancel edit
+        function cancelEdit(index) {
+            loadAllergies();
+        }
+
+        // Delete allergy
+        function deleteAllergy(index) {
+            if (!confirm('Are you sure you want to delete this allergy?')) {
+                return;
+            }
+
+            // Remove from array
+            currentPet.allergies.splice(index, 1);
+
+            // Update localStorage
+            const petIndex = pets.findIndex(p => p.code === petCode);
+            pets[petIndex] = currentPet;
+            localStorage.setItem('pets', JSON.stringify(pets));
+
+            // Reload list
+            loadAllergies();
+
+            showNotification('Allergy deleted successfully!', 'error');
+        }
+
+        // Save and view profile
+        function saveAndViewProfile() {
+            window.location.href = `profile.html?code=${petCode}`;
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const color = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${color} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-bounce`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Load pet data on page load
+        loadPetData();
+    </script>
+</body>
+
+</html>

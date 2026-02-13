@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application | Main Panel</title>
+    <link rel="icon" href="../images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/common.css">
+</head>
+
+<body class="min-h-screen max-md:h-fit flex flex-col">
+    <!--Nav-->
+    <div class="nav bg-basic w-full py-4 grid grid-cols-3 items-center px-8 shadow-md relative">
+        <!-- Left: Navigation -->
+        <div class="flex items-center gap-4 justify-self-start">
+            <button onclick="history.back()"
+                class="w-10 h-10 bg-white text-basic rounded-full flex items-center justify-center hover:scale-95 transition-transform shadow-sm">
+                <i class="bi bi-chevron-left text-lg"></i>
+            </button>
+
+        </div>
+
+        <!-- Center: Logo -->
+        <div class="flex justify-center justify-self-center">
+            <img src="../images/logo.png" alt="Logo" class="h-12 w-auto drop-shadow-md">
+        </div>
+
+        <!-- Right: User Info -->
+        <div class="flex items-center gap-4 justify-self-end">
+            <div class="text-right text-white hidden sm:block">
+                <h2 class="text-lg font-bold leading-tight">Good Evening!</h2>
+                <p class="text-xs text-blue-200">Welcome Admin</p>
+            </div>
+            <button onclick="window.location.href = '../';"
+                class="w-10 h-10 bg-white text-basic rounded-full flex items-center justify-center hover:scale-95 transition-transform shadow-sm">
+                <i class="bi bi-box-arrow-right text-lg"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Spacer -->
+    <!--center-->
+    <div class="grid place-items-center flex-grow w-full">
+        <!--Main Panel (for max-lg)-->
+        <div class="flex flex-wrap justify-center gap-6 w-full max-w-7xl h-fit py-6 text-white px-8">
+            <!-- 0. Dashboard -->
+            <div onclick="locatePanelItem('dashboard');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox cursor-pointer">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/dash.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Dashboard</p>
+                </div>
+            </div>
+
+            <!-- 1. Pet Registration -->
+            <div onclick="locatePanelItem('petRegistretion');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/animal.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Pet Management</p>
+                </div>
+            </div>
+
+            <!-- 2. Booking List View -->
+            <div onclick="locatePanelItem('bookings/view');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/calendar.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Booking List</p>
+                </div>
+            </div>
+
+            <!-- 3. OPD -->
+            <div onclick="locatePanelItem('opd');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/customer.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">OPD</p>
+                </div>
+            </div>
+
+            <!-- 4. Pet Hospitalities -->
+            <!-- <div onclick="locatePanelItem('hospitalities');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/services.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Pet Hospitalities</p>
+                </div>
+            </div> -->
+
+            <!-- 5. Pet Hospital (Rooms) -->
+            <div onclick="locatePanelItem('ward');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/cat-house.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Pet Hostel</p>
+                </div>
+            </div>
+
+            <!-- 6. Pet Salon -->
+            <div onclick="locatePanelItem('salon');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/items.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Pet Salon</p>
+                </div>
+            </div>
+
+            <!-- 7. Pharmacy & Pet Shop -->
+            <div onclick="locatePanelItem('pharmacy');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/sales.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Pharmacy & Pet Shop</p>
+                </div>
+            </div>
+
+            <!-- 8. Stock Management -->
+            <div onclick="locatePanelItem('stock');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/inventory-management.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Stock Management</p>
+                </div>
+            </div>
+
+            <!-- 9. Suppliers -->
+            <div onclick="locatePanelItem('supplier-mgmt');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/supp-mgmt.png"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Suppliers</p>
+                </div>
+            </div>
+
+            <!-- 10. Expenses -->
+            <div onclick="locatePanelItem('expenses');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/expenses.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Expenses</p>
+                </div>
+            </div>
+
+            <!-- 11. Final Billing -->
+            <div onclick="locatePanelItem('final-billing');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/billing.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Final Billing</p>
+                </div>
+            </div>
+
+            <!-- 12. Employee Management -->
+            <div onclick="locatePanelItem('users');"
+                class="w-[250px] max-lg:w-[200px] h-[200px] max-lg:h-[150px] text-white uppercase lg:text-xl transform transition-all duration-300 ease-in-out hover:translate-y-[-10px] hover:scale-[1.02] hover:rotate-[1deg] cardBox">
+                <div class="card">
+                    <img src="../images/main-panel/btn-icons/users.svg"
+                        class="w-[105px] h-[105px] max-xl:w-[70px] max-xl:h-[70px]" alt="">
+                    <p class="text-center">Employee Mgmt</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto bg-basic py-4 text-center text-white text-xs w-full">
+        <p>2026 © All Rights Reserved | Royal Pets Animal Hospital | Designed and Developed by Silicon Radon Networks
+            (Pvt) Ltd</p>
+    </footer>
+</body>
+<script src="../scripts/common.js"></script>
+<script>
+    // set page title to appName
+    document.title = `${appName} | Main Panel`;
+</script>
+<script>
+    function locatePanelItem(panelItem) {
+        window.location.href = "../main-panel/" + panelItem;
+    }
+</script>
+
+</html>

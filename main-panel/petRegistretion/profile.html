@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Profile</title>
+    <link rel="icon" href="../../images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <link rel="stylesheet" href="../../styles/common.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .profile-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .pet-badge {
+            background: linear-gradient(135deg, #0b2b64 0%, #0b2b64 100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="profile-card max-w-2xl w-full rounded-2xl shadow-2xl p-8 md:p-12">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="pet-badge inline-block px-6 py-2 rounded-full text-white font-semibold mb-4">
+                🐾 Pet Profile
+            </div>
+        </div>
+
+        <!-- Pet Image -->
+        <div class="flex justify-center mb-6">
+            <div class="relative">
+                <img id="petImage" src="" alt="Pet" class="w-48 h-48 md:w-64 md:h-64 rounded-full object-cover border-8 border-white shadow-xl">
+                <div class="absolute bottom-0 right-0 bg-green-500 w-12 h-12 rounded-full border-4 border-white flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Name & Code -->
+        <div class="text-center mb-8">
+            <h1 id="petName" class="text-4xl md:text-5xl font-bold text-gray-800 mb-2"></h1>
+            <p id="petCode" class="text-xl text-gray-600 font-mono bg-gray-100 inline-block px-4 py-2 rounded-lg"></p>
+        </div>
+
+        <!-- Pet Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-md">
+                <div class="flex items-center mb-2">
+                    <svg class="w-6 h-6 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                    </svg>
+                    <span class="text-sm font-medium text-purple-900">Species</span>
+                </div>
+                <p id="petSpecies" class="text-2xl font-bold text-purple-900"></p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-md">
+                <div class="flex items-center mb-2">
+                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                    </svg>
+                    <span class="text-sm font-medium text-blue-900">Breed</span>
+                </div>
+                <p id="petBreed" class="text-2xl font-bold text-blue-900"></p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-md">
+                <div class="flex items-center mb-2">
+                    <svg class="w-6 h-6 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-purple-900">Age</span>
+                </div>
+                <p id="petAge" class="text-2xl font-bold text-purple-900"></p>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-md mb-8">
+            <div class="flex items-center mb-3">
+                <svg class="w-6 h-6 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm font-medium text-green-900">About</span>
+            </div>
+            <p id="petDescription" class="text-gray-700 leading-relaxed"></p>
+        </div>
+
+        <!-- Allergies Section -->
+        <div class="bg-gradient-to-br from-red-50 to-orange-100 p-6 rounded-xl shadow-md mb-8">
+            <div class="flex items-center mb-3">
+                <svg class="w-6 h-6 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm font-medium text-red-900">Known Allergies</span>
+            </div>
+            <div id="allergiesContainer" class="flex flex-wrap gap-2">
+                <!-- Allergies will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Registration Date -->
+        <div class="text-center mb-8">
+            <p class="text-sm text-gray-500">
+                <span class="font-semibold">Registered on:</span> 
+                <span id="registeredDate"></span>
+            </p>
+        </div>
+
+        <!-- QR Code & Barcode Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- QR Code -->
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-xl shadow-md">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd"/>
+                            <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM7 11a1 1 0 100-2H4a1 1 0 100 2h3zM17 13a1 1 0 01-1 1h-2a1 1 0 110-2h2a1 1 0 011 1zM16 17a1 1 0 100-2h-3a1 1 0 100 2h3z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-indigo-900">QR Code</span>
+                    </div>
+                    <button onclick="downloadQRCode()" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700">
+                        Download
+                    </button>
+                </div>
+                <div class="flex justify-center">
+                    <canvas id="qrCodeCanvas" class="bg-white p-2 rounded-lg"></canvas>
+                </div>
+            </div>
+
+            <!-- Barcode -->
+            <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-6 rounded-xl shadow-md">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-cyan-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm6 0a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4zm7-1a1 1 0 00-1 1v12a1 1 0 001 1h1a1 1 0 001-1V4a1 1 0 00-1-1h-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm font-medium text-cyan-900">Barcode</span>
+                    </div>
+                    <button onclick="downloadBarcode()" class="px-3 py-1 bg-cyan-600 text-white text-xs rounded-lg hover:bg-cyan-700">
+                        Download
+                    </button>
+                </div>
+                <div class="flex justify-center">
+                    <svg id="barcodeCanvas" class="bg-white p-2 rounded-lg"></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daycare Records Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-[#0b2b64]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                Daycare Records
+            </h2>
+            <div id="daycareRecords" class="space-y-3">
+                <!-- Daycare records will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Medical Records Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-[#0b2b64]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
+                </svg>
+                Medical Records
+            </h2>
+            <div id="prescriptionRecords" class="space-y-3">
+                <!-- Medical records will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-8">
+            <button onclick="window.location.href='list.html'" class="px-8 py-3 bg-gradient-to-r from-[#0b2b64] to-[#0b2b64] text-white rounded-lg font-semibold hover:scale-105 transition-transform shadow-lg">
+                ← Back to List
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get pet code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const petCode = urlParams.get('code');
+
+        // Load pet data with sample data fallback
+        let pets = JSON.parse(localStorage.getItem('pets')) || [];
+        
+        // Add sample pets if none exist
+        if (pets.length === 0) {
+            pets = [
+                {
+                    code: 'RP00001',
+                    name: 'Max',
+                    age: '3',
+                    species: 'Canine (Dog)',
+                    breed: 'Golden Retriever',
+                    description: 'Friendly and energetic dog, loves to play fetch and swim. Very good with children and other pets.',
+                    image: 'https://images.unsplash.com/photo-1633722715463-d30f4f325e24?w=400',
+                    registeredDate: new Date().toISOString(),
+                    allergies: ['Chicken', 'Dairy Products', 'Pollen']
+                },
+                {
+                    code: 'RP00002',
+                    name: 'Whiskers',
+                    age: '2',
+                    species: 'Feline (Cat)',
+                    breed: 'Persian Cat',
+                    description: 'Calm and affectionate cat with beautiful long fur. Enjoys quiet environments and loves to be pampered.',
+                    image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400',
+                    registeredDate: new Date().toISOString(),
+                    allergies: ['Fish', 'Dust', 'Certain Fragrances']
+                }
+            ];
+            localStorage.setItem('pets', JSON.stringify(pets));
+        }
+
+        const pet = pets.find(p => p.code === petCode);
+
+        if (pet) {
+            // Display pet information
+            document.getElementById('petImage').src = pet.image;
+            document.getElementById('petName').textContent = pet.name;
+            document.getElementById('petCode').textContent = pet.code;
+            document.getElementById('petSpecies').textContent = pet.species || 'Not specified';
+            document.getElementById('petBreed').textContent = pet.breed;
+            document.getElementById('petAge').textContent = pet.age + ' years';
+            document.getElementById('petDescription').textContent = pet.description || 'No description available';
+            
+            const date = new Date(pet.registeredDate);
+            document.getElementById('registeredDate').textContent = date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.title = `${pet.name} - Pet Profile`;
+
+            // Display allergies
+            displayAllergies(pet.allergies);
+
+            // Generate QR Code and Barcode
+            generateQRCode(petCode);
+            generateBarcode(petCode);
+
+            // Load and display daycare records
+            loadDaycareRecords(petCode);
+
+            // Load and display prescription records
+            loadPrescriptionRecords(petCode);
+        } else {
+            document.querySelector('.profile-card').innerHTML = `
+                <div class="text-center py-12">
+                    <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h2 class="text-2xl font-bold text-gray-700 mb-2">Pet Not Found</h2>
+                    <p class="text-gray-600 mb-6">The pet profile you're looking for doesn't exist.</p>
+                    <button onclick="window.location.href='list.html'" class="px-6 py-3 bg-[#0b2b64] text-white rounded-lg hover:bg-[#65adff]">
+                        Go to Pet List
+                    </button>
+                </div>
+            `;
+        }
+
+        function displayAllergies(allergies) {
+            const container = document.getElementById('allergiesContainer');
+            
+            if (!allergies || allergies.length === 0) {
+                container.innerHTML = `
+                    <span class="px-4 py-2 bg-red-200 text-red-900 rounded-full text-sm font-semibold flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Dust
+                    </span>
+                `;
+            } else {
+                container.innerHTML = allergies.map(allergy => `
+                    <span class="px-4 py-2 bg-red-200 text-red-900 rounded-full text-sm font-semibold flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/>
+                        </svg>
+                        ${allergy}
+                    </span>
+                `).join('');
+            }
+        }
+
+        // Generate QR Code
+        function generateQRCode(petCode) {
+            const profileURL = window.location.href;
+            const canvas = document.getElementById('qrCodeCanvas');
+            
+            QRCode.toCanvas(canvas, profileURL, { 
+                width: 180, 
+                height: 180,
+                margin: 1
+            }, function (error) {
+                if (error) console.error('Error generating QR code:', error);
+            });
+        }
+
+        // Generate Barcode
+        function generateBarcode(petCode) {
+            const svg = document.getElementById('barcodeCanvas');
+            
+            JsBarcode(svg, petCode, {
+                format: "CODE128",
+                width: 2,
+                height: 80,
+                displayValue: true,
+                fontSize: 14,
+                margin: 5
+            });
+        }
+
+        // Download QR Code
+        function downloadQRCode() {
+            const canvas = document.getElementById('qrCodeCanvas');
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `${petCode}_QR_Code.png`;
+            link.click();
+        }
+
+        // Download Barcode
+        function downloadBarcode() {
+            const svg = document.getElementById('barcodeCanvas');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            canvas.width = 250;
+            canvas.height = 120;
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `${petCode}_Barcode.png`;
+                link.click();
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+        }
+
+        function loadDaycareRecords(petCode) {
+            let bookings = JSON.parse(localStorage.getItem('daycareBookings')) || [];
+            
+            // Add sample booking if none exist for this pet
+            if (bookings.filter(b => b.petCode === petCode).length === 0 && petCode === 'RP00001') {
+                const sampleBooking = {
+                    code: 'DB00001',
+                    petCode: 'RP00001',
+                    petName: 'Max',
+                    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    endDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+                    foodItems: [
+                        { name: 'Premium Dog Food', price: 500 },
+                        { name: 'Treats', price: 200 }
+                    ],
+                    medicineItems: [
+                        { name: 'Vitamins', price: 350 }
+                    ],
+                    extraCosts: 100,
+                    notes: 'Regular daycare stay with special diet',
+                    subTotal: 3650,
+                    status: 'Completed',
+                    createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+                };
+                bookings.push(sampleBooking);
+                localStorage.setItem('daycareBookings', JSON.stringify(bookings));
+            }
+
+            // Filter bookings for this pet
+            const petBookings = bookings.filter(b => b.petCode === petCode);
+            const container = document.getElementById('daycareRecords');
+
+            if (petBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-gray-50 p-6 rounded-lg text-center">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="text-gray-500">No daycare records found</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = petBookings.map(booking => {
+                    const startDate = new Date(booking.startDate);
+                    const endDate = new Date(booking.endDate);
+                    const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    
+                    return `
+                        <div class="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg text-gray-800">${booking.code}</h3>
+                                    <p class="text-sm text-gray-600">${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${
+                                    booking.status === 'Active' 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-gray-100 text-gray-800'
+                                }">
+                                    ${booking.status}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm mb-2">
+                                <div>
+                                    <span class="text-gray-600">Duration:</span>
+                                    <span class="font-semibold text-gray-800"> ${duration} day(s)</span>
+                                </div>
+                                <div class="hidden">
+                                    <span class="text-gray-600">Total:</span>
+                                    <span class="font-semibold text-gray-800"> Rs. ${booking.subTotal.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            ${booking.notes ? `<p class="text-sm text-gray-600 italic mt-2">"${booking.notes}"</p>` : ''}
+                            <div class="mt-3">
+                                <a href="../nursery/bill.html?code=${booking.code}" target="_blank" class="inline-block px-3 py-1.5 bg-[#0b2b64] text-white text-sm rounded-lg hover:bg-[#1a3a7d]">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function loadPrescriptionRecords(petCode) {
+            let prescriptions = JSON.parse(localStorage.getItem('prescriptions')) || [];
+            
+            // Add sample prescription if none exist for this pet
+            if (prescriptions.filter(p => p.petCode === petCode).length === 0 && petCode === 'RP00001') {
+                const samplePrescription = {
+                    code: 'PRX00001',
+                    petCode: 'RP00001',
+                    petName: 'Max',
+                    title: 'Annual Vaccination & Checkup',
+                    consultationFee: 1500,
+                    medicines: [
+                        { name: 'Rabies Vaccine', price: 800 },
+                        { name: 'Deworming Tablets', price: 450 },
+                        { name: 'Multivitamins', price: 350 }
+                    ],
+                    medicineTotal: 1600,
+                    totalAmount: 3100,
+                    description: 'Annual health checkup completed. All vitals normal. Vaccination administered successfully.',
+                    createdDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'Active'
+                };
+                prescriptions.push(samplePrescription);
+                localStorage.setItem('prescriptions', JSON.stringify(prescriptions));
+            }
+
+            // Filter prescriptions for this pet
+            const petPrescriptions = prescriptions.filter(p => p.petCode === petCode);
+            const container = document.getElementById('prescriptionRecords');
+
+            if (petPrescriptions.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-gray-50 p-6 rounded-lg text-center">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="text-gray-500">No prescription records found</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = petPrescriptions.map(prescription => {
+                    const prescDate = new Date(prescription.createdDate);
+                    
+                    return `
+                        <div class="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-lg text-gray-800">${prescription.code}</h3>
+                                    <p class="text-sm text-gray-600">${prescDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                    ${prescription.status}
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <h4 class="font-semibold text-gray-800">${prescription.title}</h4>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm mb-2 hidden">
+                                <div>
+                                    <span class="text-gray-600">Consultation:</span>
+                                    <span class="font-semibold text-gray-800"> Rs. ${prescription.consultationFee.toFixed(2)}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Medicines:</span>
+                                    <span class="font-semibold text-gray-800"> Rs. ${prescription.medicineTotal.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <div class="text-sm mb-2 hidden">
+                                <span class="text-gray-600">Total Amount:</span>
+                                <span class="font-bold text-gray-800"> Rs. ${prescription.totalAmount.toFixed(2)}</span>
+                            </div>
+                            ${prescription.medicines.length > 0 ? `
+                                <div class="mt-2 mb-2">
+                                    <p class="text-xs font-semibold text-gray-600 mb-1">Medicines (${prescription.medicines.length}):</p>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${prescription.medicines.slice(0, 3).map(med => 
+                                            `<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">${med.name}</span>`
+                                        ).join('')}
+                                        ${prescription.medicines.length > 3 ? `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">+${prescription.medicines.length - 3} more</span>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            ${prescription.description ? `<p class="text-sm text-gray-600 italic mt-2">"${prescription.description}"</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    </script>
+</body>
+
+</html>
