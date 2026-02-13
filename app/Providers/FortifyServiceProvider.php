@@ -35,8 +35,13 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
-        Fortify::logoutResponseUsing(function ($request) {
-            return redirect()->route('login');
+        $this->app->singleton(\Laravel\Fortify\Contracts\LogoutResponse::class, function () {
+            return new class implements \Laravel\Fortify\Contracts\LogoutResponse {
+                public function toResponse($request)
+                {
+                    return redirect()->route('login');
+                }
+            };
         });
 
         RateLimiter::for('login', function (Request $request) {
