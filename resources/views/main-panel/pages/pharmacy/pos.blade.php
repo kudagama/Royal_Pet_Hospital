@@ -1,0 +1,414 @@
+@extends('main-panel.layouts.main')
+
+@section('title', 'Application | Pharmacy POS')
+
+@section('styles')
+<style>
+    .pos-card {
+        transition: all 0.2s ease;
+    }
+
+    .pos-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .pos-card:active {
+        transform: scale(0.98);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #aaa;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="flex-grow flex flex-col md:flex-row min-h-0">
+    <!-- LEFT PANEL: Product Grid -->
+    <div class="flex-grow bg-gray-100 p-6 relative overflow-y-auto custom-scrollbar">
+        <!-- Search Bar -->
+        <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <div class="relative w-full">
+                <i class="bi bi-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="renderGrid()"
+                    placeholder="Search Medicine by Name or Ref ID..."
+                    class="w-full pl-12 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 bg-gray-50 focus:bg-white transition-all outline-none">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="gridContainer">
+            <!-- Grid Items -->
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: Cart / Transaction -->
+    <div class="w-full md:w-[400px] bg-white flex flex-col shadow-2xl border-l border-gray-200 shrink-0 h-full overflow-hidden">
+        <!-- Customer Info -->
+        <div class="p-4 border-b border-gray-100 bg-gray-50">
+            <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Customer / Pet Details</label>
+            <div class="relative w-full flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
+                <i class="bi bi-person text-gray-400 mr-2"></i>
+                <input type="text" id="custSearch" onkeyup="searchCustomer()" placeholder="Walk-in / Search Pet..."
+                    class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm font-semibold text-gray-800 placeholder-gray-400 outline-none">
+                <button onclick="clearCustomer()" class="text-gray-400 hover:text-red-500 ml-2" title="Clear Customer">
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+            </div>
+
+            <!-- Search Results Dropdown -->
+            <div id="custResults" class="hidden absolute left-4 right-4 bg-white shadow-xl border rounded-lg mt-1 max-h-40 z-50 overflow-y-auto">
+                <!-- Results -->
+            </div>
+        </div>
+
+        <!-- Cart Items Header -->
+        <div class="px-4 py-2 bg-blue-50/50 flex justify-between items-center text-xs font-semibold text-blue-800 border-b border-blue-50">
+            <span>Current Items</span>
+            <button onclick="clearCart()" class="text-red-500 hover:text-red-700 underline">Clear All</button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div class="flex-grow p-4 space-y-3 overflow-y-auto custom-scrollbar" id="cartItemsContainer">
+            <!-- Empty State -->
+            <div id="cartEmptyState" class="h-full flex flex-col justify-center items-center text-gray-400 opacity-60">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <i class="bi bi-basket text-3xl text-gray-400"></i>
+                </div>
+                <p class="font-medium text-sm">Cart is empty</p>
+                <p class="text-xs mt-1">Select items from the grid</p>
+            </div>
+        </div>
+
+        <!-- Totals & Actions -->
+        <div class="bg-gray-50 border-t border-gray-200 p-6 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            <div class="flex justify-between items-end mb-1">
+                <span class="text-sm font-medium text-gray-500">Total Amount</span>
+                <span class="font-bold text-3xl text-gray-900" id="txtTotal">0.00</span>
+            </div>
+            <div class="flex justify-between items-center mb-6 text-xs text-gray-500">
+                <span>Items: <span id="itemCount">0</span></span>
+                <span>Tax Inclusive</span>
+            </div>
+
+            <button onclick="sendToBilling()" id="btnSend" disabled
+                class="w-full py-3.5 bg-basic text-white text-base font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-[#1a3b75] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex justify-center items-center gap-2 group">
+                <span>PROCEED TO BILLING</span>
+                <i class="bi bi-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    // --- State ---
+    let cart = {
+        customer: null,
+        items: [],
+        total: 0
+    };
+
+    let products = [];
+    let pets = [];
+    let categories = ['Tablets', 'Syrups', 'First Aid', 'Hygiene', 'Injections'];
+
+    function loadData() {
+        // Load Pets for search
+        pets = JSON.parse(localStorage.getItem('pets')) || [];
+
+        // Load Inventory (Mock + Local) - Added Categories
+        const stock = JSON.parse(localStorage.getItem('pharmacy_stock')) || [
+            { id: 'MED001', name: 'Amoxicillin 500mg', price: 15.00, stock: 100, category: 'Tablets' },
+            { id: 'MED004', name: 'Vitamin C Tabs', price: 800.00, stock: 30, category: 'Tablets' },
+            { id: 'MED006', name: 'Deworming Tablet', price: 350.00, stock: 60, category: 'Tablets' },
+            { id: 'MED002', name: 'Paracetamol Syrup', price: 450.00, stock: 20, category: 'Syrups' },
+            { id: 'MED003', name: 'Bandage Roll', price: 120.00, stock: 50, category: 'First Aid' },
+            { id: 'MED005', name: 'Flea Collar', price: 2500.00, stock: 10, category: 'Hygiene' },
+            { id: 'MED008', name: 'Dog Shampoo', price: 1800.00, stock: 25, category: 'Hygiene' },
+            { id: 'MED007', name: 'Antibiotic Spray', price: 1250.00, stock: 15, category: 'First Aid' }
+        ];
+        products = stock;
+    }
+
+    // --- Render ---
+    function renderGrid() {
+        const container = document.getElementById('gridContainer');
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        container.innerHTML = '';
+
+        // If searching, show flat list
+        if (search.length > 0) {
+            const filtered = products.filter(p => p.name.toLowerCase().includes(search) || p.id.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-400 mt-20">
+                    <i class="bi bi-search text-4xl mb-3"></i>
+                    <p>No products found matching "${search}"</p>
+                </div>`;
+                return;
+            }
+
+            container.className = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4";
+            filtered.forEach(p => container.appendChild(createProductCard(p)));
+            return;
+        }
+
+        // If NOT searching, show categories
+        container.className = "flex flex-col gap-8 w-full"; 
+
+        const activeCats = [...new Set(products.map(p => p.category || 'Uncategorized'))];
+
+        activeCats.forEach(cat => {
+            const catProducts = products.filter(p => (p.category || 'Uncategorized') === cat);
+            if (catProducts.length === 0) return;
+
+            const section = document.createElement('div');
+            section.className = "w-full";
+            section.innerHTML = `
+                <h3 class="text-lg font-bold text-gray-700 mb-4 border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <i class="bi bi-grid-fill text-basic text-sm"></i> ${cat}
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                </div>
+            `;
+
+            const gridDiv = section.querySelector('.grid');
+            catProducts.forEach(p => gridDiv.appendChild(createProductCard(p)));
+
+            container.appendChild(section);
+        });
+    }
+
+    function createProductCard(p) {
+        const item = document.createElement('div');
+        item.className = "pos-card bg-white p-4 rounded-xl border border-gray-100 cursor-pointer flex flex-col justify-between h-[160px] relative overflow-hidden group hover:border-blue-300";
+        item.onclick = () => addToCart(p);
+
+        item.innerHTML = `
+                <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full -mr-8 -mt-8 transition-all group-hover:scale-110"></div>
+                <div class="relative z-10 h-full flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold tracking-wider text-gray-400 uppercase bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">${p.id}</span>
+                            <span class="text-xs font-bold ${p.stock < 10 ? 'text-red-500 bg-red-50' : 'text-green-600 bg-green-50'} px-2 py-0.5 rounded-full">${p.stock} Left</span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 line-clamp-2 text-sm mt-3 leading-snug group-hover:text-basic transition-colors">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 mt-1">${p.category || ''}</p>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-gray-50 flex justify-between items-end">
+                        <button class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-basic hover:text-white transition-colors">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <span class="font-bold text-lg text-gray-900">${parseFloat(p.price).toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+        return item;
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cartItemsContainer');
+        const empty = document.getElementById('cartEmptyState');
+
+        if (cart.items.length === 0) {
+            container.innerHTML = '';
+            container.appendChild(empty);
+            updateTotals();
+            return;
+        }
+
+        container.innerHTML = '';
+        cart.items.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = "flex justify-between items-start p-3 bg-white border border-gray-100 rounded-xl hover:border-blue-200 transition-colors shadow-sm";
+
+            row.innerHTML = `
+                <div class="flex-grow">
+                    <h5 class="text-sm font-bold text-gray-800 leading-tight">${item.name}</h5>
+                    <p class="text-xs text-gray-400 mt-1">${item.unitPrice.toFixed(2)} / unit</p>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="font-bold text-gray-900 text-sm">${(item.unitPrice * item.qty).toFixed(2)}</span>
+                    
+                    <div class="flex items-center bg-gray-50 rounded-lg p-0.5 border border-gray-200">
+                        <button onclick="updateQty(${index}, -1)" class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-white rounded-md transition-all ${item.qty === 1 ? 'text-red-400' : ''}">
+                            <i class="bi bi-${item.qty === 1 ? 'trash' : 'dash'} text-xs"></i>
+                        </button>
+                        <span class="w-6 text-center text-xs font-bold text-gray-800">${item.qty}</span>
+                        <button onclick="updateQty(${index}, 1)" class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-white rounded-md transition-all">
+                            <i class="bi bi-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        let total = 0;
+        let count = 0;
+        cart.items.forEach(i => {
+            total += (i.unitPrice * i.qty);
+            count += i.qty;
+        });
+        cart.total = total;
+        document.getElementById('txtTotal').innerText = total.toFixed(2);
+        document.getElementById('itemCount').innerText = count;
+        document.getElementById('btnSend').disabled = cart.items.length === 0;
+    }
+
+    function addToCart(product) {
+        const existing = cart.items.find(i => i.id === product.id);
+        if (existing) {
+            existing.qty++;
+        } else {
+            cart.items.push({
+                id: product.id,
+                name: product.name,
+                unitPrice: parseFloat(product.price),
+                qty: 1
+            });
+        }
+        renderCart();
+    }
+
+    function updateQty(index, change) {
+        if (cart.items[index].qty + change > 0) {
+            cart.items[index].qty += change;
+        } else {
+            if (change < 0) removeItem(index);
+            return;
+        }
+        renderCart();
+    }
+
+    function removeItem(index) {
+        cart.items.splice(index, 1);
+        renderCart();
+    }
+
+    function clearCart() {
+        if (confirm('Clear all items?')) {
+            cart.items = [];
+            renderCart();
+        }
+    }
+
+    function clearCustomer() {
+        cart.customer = null;
+        document.getElementById('custSearch').value = '';
+        document.getElementById('custResults').classList.add('hidden');
+    }
+
+    function searchCustomer() {
+        const query = document.getElementById('custSearch').value.toLowerCase();
+        const resultsDiv = document.getElementById('custResults');
+
+        if (query.length < 2) {
+            resultsDiv.classList.add('hidden');
+            return;
+        }
+
+        const matches = pets.filter(p => p.name.toLowerCase().includes(query) || (p.owner && p.owner.toLowerCase().includes(query)));
+
+        resultsDiv.innerHTML = '';
+        if (matches.length > 0) {
+            matches.forEach(p => {
+                const div = document.createElement('div');
+                div.className = "p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 flex justify-between items-center group";
+                div.innerHTML = `
+                    <div>
+                        <p class="font-bold text-sm text-gray-800">${p.name}</p>
+                        <p class="text-xs text-gray-500">${p.owner || 'Unknown Owner'}</p>
+                    </div>
+                    <span class="text-xs font-mono text-gray-400 group-hover:text-blue-600">${p.code}</span>
+                `;
+                div.onclick = () => selectCustomer(p);
+                resultsDiv.appendChild(div);
+            });
+            resultsDiv.classList.remove('hidden');
+        } else {
+            resultsDiv.innerHTML = '<div class="p-3 text-xs text-gray-500 text-center">No pets found</div>';
+            resultsDiv.classList.remove('hidden');
+        }
+    }
+
+    function selectCustomer(pet) {
+        cart.customer = pet;
+        document.getElementById('custSearch').value = `${pet.name} (${pet.owner || 'Unknown'})`;
+        document.getElementById('custResults').classList.add('hidden');
+    }
+
+    function sendToBilling() {
+        if (cart.items.length === 0) return;
+
+        const opdEntries = JSON.parse(localStorage.getItem('opd_entries')) || [];
+
+        const newEntry = {
+            code: 'PHARM-' + Date.now().toString().slice(-6),
+            petId: cart.customer ? cart.customer.code : 'WALKIN',
+            visitDate: new Date().toISOString().split('T')[0],
+            status: 'Pending',
+            type: 'Pharmacy',
+            totalAmount: cart.total.toFixed(2),
+            services: cart.items.map(i => ({
+                title: i.name,
+                description: `Qty: ${i.qty} x ${i.unitPrice}`,
+                price: (i.unitPrice * i.qty).toFixed(2)
+            })),
+            createdAt: new Date().toISOString()
+        };
+
+        opdEntries.push(newEntry);
+        localStorage.setItem('opd_entries', JSON.stringify(opdEntries));
+
+        const btn = document.getElementById('btnSend');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i class="bi bi-check-circle-fill"></i> SENT!`;
+        btn.classList.add('bg-green-600');
+
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('bg-green-600');
+            cart.items = [];
+            renderCart();
+            window.location.href = "{{ route('final-billing') }}";
+        }, 800);
+    }
+
+    // Init
+    loadData();
+    renderGrid();
+
+    document.addEventListener('click', (e) => {
+        const results = document.getElementById('custResults');
+        const custSearch = document.getElementById('custSearch');
+        if (!results.contains(e.target) && e.target !== custSearch) {
+            results.classList.add('hidden');
+        }
+    });
+</script>
+@endsection
