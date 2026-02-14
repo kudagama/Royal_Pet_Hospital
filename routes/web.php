@@ -54,6 +54,8 @@ Route::prefix('main-panel')->middleware(['auth:sanctum', 'verified'])->group(fun
     Route::get('/bookings/create', [MainPanelController::class, 'createBooking'])->name('bookings.create');
     Route::get('/opd', [MainPanelController::class, 'opd'])->name('opd');
     Route::get('/opd/create', [MainPanelController::class, 'createOPD'])->name('opd.create');
+    Route::post('/opd/store', [MainPanelController::class, 'storeOPD'])->name('opd.store');
+    Route::put('/opd/update-advance/{id}', [MainPanelController::class, 'updateOPDAdvance'])->name('opd.update-advance');
     Route::get('/opd/list', [MainPanelController::class, 'listOPD'])->name('opd.list');
     Route::get('/ward', [MainPanelController::class, 'ward'])->name('ward');
     Route::get('/salon', [MainPanelController::class, 'salon'])->name('salon');

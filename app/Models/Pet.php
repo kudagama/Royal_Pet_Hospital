@@ -34,4 +34,9 @@ class Pet extends Model
     {
         return $this->belongsTo(PetBreed::class, 'pet_breed_id');
     }
+
+    public function opdVisits()
+    {
+        return $this->hasMany(OpdVisit::class);
+    }
 }
