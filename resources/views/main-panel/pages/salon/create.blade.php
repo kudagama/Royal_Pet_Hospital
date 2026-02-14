@@ -1,0 +1,294 @@
+@extends('main-panel.layouts.main')
+
+@section('title', 'Application | New Grooming Job')
+
+@section('styles')
+<style>
+    .service-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .service-card.selected {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .service-card.selected .check-icon {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .check-icon {
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.2s ease;
+    }
+</style>
+@endsection
+
+@section('content')
+<div class="flex-grow flex flex-col w-full relative">
+    <!-- Breadcrumbs -->
+    <div class="page-padding">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                <li class="inline-flex items-center">
+                    <a href="{{ route('salon') }}"
+                        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                        <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                        </svg>
+                        Pet Salon
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="m1 9 4-4-4-4" />
+                        </svg>
+                        <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2">New Job</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Create Job Form -->
+    <div class="w-full flex-grow flex flex-col">
+        <div class="space-y-8 w-full page-padding pb-32">
+            <!-- 1. Pet Details Section -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm">1</span>
+                    Pet Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Select Pet</label>
+                        <div class="relative">
+                            <select id="petSelect"
+                                class="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none appearance-none transition-shadow hover:shadow-sm">
+                                <option value="">-- Select Registered Pet --</option>
+                                <option value="1">Roxy (Dog - Golden Retriever)</option>
+                                <option value="2">Bella (Cat - Persian)</option>
+                                <option value="3">Max (Dog - German Shepherd)</option>
+                            </select>
+                            <i class="bi bi-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Owner Name (Auto)</label>
+                        <input type="text" id="ownerName"
+                            class="w-full border border-gray-200 rounded-lg p-3 bg-gray-100 text-gray-600 cursor-not-allowed"
+                            readonly placeholder="Select a pet first...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Services Selection Section -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-pink-100 text-pink-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm">2</span>
+                    Select Services
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="serviceGrid">
+                    <!-- Services generated by JS -->
+                </div>
+            </div>
+
+            <!-- 3. Notes -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <span class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm">3</span>
+                    Additional Notes
+                </h2>
+                <textarea id="jobNotes" rows="3"
+                    class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                    placeholder="Any special instructions for the groomer..."></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fixed Summary Bar -->
+<div class="fixed bottom-16 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-40">
+    <div class="max-w-6xl mx-auto flex justify-between items-center px-8 max-sm:px-4">
+        <div class="flex flex-col">
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Estimate</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-basic" id="totalPrice">LKR 0.00</h3>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="history.back()" class="px-6 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-bold transition-colors">Cancel</button>
+            <button onclick="createJob()"
+                class="px-8 py-3 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform active:scale-95">
+                <i class="bi bi-check-lg text-xl"></i> <span>Create Job</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Service Modal -->
+<div id="customServiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[60]">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Add Custom Service</h3>
+        <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Service Name</label>
+            <input type="text" id="customServiceNameInput"
+                class="w-full border border-gray-300 rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="E.g., Special Trim">
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeCustomServiceModal()" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 font-bold transition-colors">Cancel</button>
+            <button onclick="saveCustomService()" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-md transition-all">Add Service</button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    const services = [
+        { id: 'wash', title: 'Premium Wash', icon: 'bi-droplet-fill', color: 'text-blue-500', desc: 'Shampoo, Conditioning & Blow Dry' },
+        { id: 'haircut', title: 'Full Haircut', icon: 'bi-scissors', color: 'text-pink-500', desc: 'Styling & Trimming' },
+        { id: 'nails', title: 'Nail & Paw Care', icon: 'bi-flower1', color: 'text-purple-500', desc: 'Nail Clipping & Paw Padding' },
+        { id: 'ears', title: 'Ear Cleaning', icon: 'bi-ear', color: 'text-orange-500', desc: 'Deep Cleaning & Plucking' },
+        { id: 'spa', title: 'Full Spa Day', icon: 'bi-stars', color: 'text-yellow-500', desc: 'All Services + Massage & Treat' },
+        { id: 'dental', title: 'Dental Hygiene', icon: 'bi-emoji-smile', color: 'text-teal-500', desc: 'Brushing & Breath Spray' },
+        { id: 'tick', title: 'Tick Treatment', icon: 'bi-bug', color: 'text-red-500', desc: 'Medicated Bath & Removal' },
+        { id: 'massage', title: 'Relaxing Massage', icon: 'bi-heart-pulse', color: 'text-rose-500', desc: '15 min Calming Massage' },
+        { id: 'custom', title: 'Other Service', icon: 'bi-plus-circle', color: 'text-gray-500', desc: 'Custom service request' }
+    ];
+
+    let selectedServices = new Map();
+
+    function renderServices() {
+        const grid = document.getElementById('serviceGrid');
+        grid.innerHTML = '';
+
+        services.forEach(s => {
+            const isSelected = selectedServices.has(s.id);
+            const currentPrice = selectedServices.get(s.id);
+            const card = document.createElement('div');
+            card.className = `service-card bg-white border border-gray-200 rounded-xl p-5 relative group flex flex-col justify-between h-full ${isSelected ? 'selected' : ''}`;
+            card.onclick = () => toggleService(s.id, card);
+            card.id = `card-${s.id}`;
+
+            const inputVal = isSelected && currentPrice !== undefined ? currentPrice : '';
+            const inputDisabled = !isSelected;
+
+            card.innerHTML = `
+                <div class="absolute top-3 right-3 check-icon text-white bg-blue-500 rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+                    <i class="bi bi-check-lg text-sm font-bold"></i>
+                </div>
+                <div>
+                    <div class="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center mb-3 group-hover:bg-blue-50 transition-colors">
+                        <i class="bi ${s.icon} text-2xl ${s.color}"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg leading-tight mb-1">${s.title}</h3>
+                    <p class="text-xs text-gray-500 mb-3 line-clamp-2">${s.desc}</p>
+                </div>
+                <div class="mt-auto pt-3 border-t border-gray-100 flex flex-col gap-2">
+                    <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+                        <span class="text-xs font-bold text-gray-500">LKR</span>
+                        <input type="number" id="price-${s.id}" placeholder="0.00" value="${inputVal}"
+                            class="w-full border border-gray-200 rounded px-2 py-1 text-sm font-mono focus:ring-1 focus:ring-blue-500 outline-none"
+                            onchange="updateServicePrice('${s.id}', this.value)" ${inputDisabled ? 'disabled' : ''}>
+                    </div>
+                    <span class="text-xs text-blue-600 font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity text-center">Click to Select</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function toggleService(id, cardElement) {
+        if (id === 'custom') { openCustomServiceModal(); return; }
+        const input = document.getElementById(`price-${id}`);
+        if (selectedServices.has(id)) {
+            selectedServices.delete(id);
+            cardElement.classList.remove('selected');
+            input.disabled = true;
+            input.value = '';
+        } else {
+            selectedServices.set(id, 0);
+            cardElement.classList.add('selected');
+            input.disabled = false;
+            input.focus();
+        }
+        updateTotal();
+    }
+
+    function openCustomServiceModal() {
+        document.getElementById('customServiceNameInput').value = '';
+        document.getElementById('customServiceModal').classList.remove('hidden');
+        document.getElementById('customServiceModal').classList.add('flex');
+        document.getElementById('customServiceNameInput').focus();
+    }
+
+    function closeCustomServiceModal() {
+        document.getElementById('customServiceModal').classList.add('hidden');
+        document.getElementById('customServiceModal').classList.remove('flex');
+    }
+
+    function saveCustomService() {
+        const name = document.getElementById('customServiceNameInput').value.trim();
+        if (!name) { alert("Please enter a service name."); return; }
+        const newId = 'custom-' + Date.now();
+        const newService = { id: newId, title: name, icon: 'bi-stars', color: 'text-gray-600', desc: 'Custom Service' };
+        services.splice(services.length - 1, 0, newService);
+        selectedServices.set(newId, 0);
+        renderServices();
+        updateTotal();
+        closeCustomServiceModal();
+        setTimeout(() => { const newInput = document.getElementById(`price-${newId}`); if (newInput) newInput.focus(); }, 100);
+    }
+
+    function updateServicePrice(id, value) {
+        if (selectedServices.has(id)) { selectedServices.set(id, parseFloat(value) || 0); updateTotal(); }
+    }
+
+    function updateTotal() {
+        let total = 0;
+        selectedServices.forEach(price => { total += price; });
+        document.getElementById('totalPrice').innerText = `LKR ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function createJob() {
+        const petId = document.getElementById('petSelect').value;
+        if (!petId) { alert("Please select a pet first!"); return; }
+        if (selectedServices.size === 0) { alert("Please select at least one service!"); return; }
+        const jobData = {
+            id: 'JOB-' + Math.floor(Math.random() * 10000),
+            petId: petId,
+            services: Array.from(selectedServices.keys()).map(id => ({ id: id, name: services.find(s => s.id === id).title, price: selectedServices.get(id) })),
+            total: parseFloat(document.getElementById('totalPrice').innerText.replace('LKR', '').replace(/,/g, '')),
+            date: new Date().toISOString(),
+            status: 'pending'
+        };
+        alert(`Job Created Successfully!\nOrder ID: ${jobData.id}\nTotal: LKR ${jobData.total}`);
+        window.location.href = "{{ route('salon') }}";
+    }
+
+    document.getElementById('petSelect').addEventListener('change', (e) => {
+        const val = e.target.value;
+        const input = document.getElementById('ownerName');
+        if (val === '1') input.value = "Mr. Silva";
+        else if (val === '2') input.value = "Mrs. Perera";
+        else if (val === '3') input.value = "Mr. Fernando";
+        else input.value = "";
+    });
+
+    renderServices();
+</script>
+@endsection

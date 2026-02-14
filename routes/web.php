@@ -34,8 +34,21 @@ Route::prefix('main-panel')->middleware(['auth:sanctum', 'verified'])->group(fun
     Route::get('/dashboard', [MainPanelController::class, 'dashboard'])->name('dashboard');
     Route::get('/petRegistretion', [MainPanelController::class, 'petRegistration'])->name('pet-registration');
     Route::get('/petRegistretion/register', [MainPanelController::class, 'registerPet'])->name('pet-registration.register');
+    Route::post('/petRegistretion/store', [MainPanelController::class, 'storePet'])->name('pet-registration.store');
     Route::get('/petRegistretion/list', [MainPanelController::class, 'listPets'])->name('pet-registration.list');
+    Route::get('/petRegistretion/edit/{id}', [MainPanelController::class, 'editPet'])->name('pet-registration.edit');
+    Route::put('/petRegistretion/update/{id}', [MainPanelController::class, 'updatePet'])->name('pet-registration.update');
+    Route::get('/petRegistretion/profile/{id}', [MainPanelController::class, 'showPet'])->name('pet-registration.show');
     Route::get('/petRegistretion/categories', [MainPanelController::class, 'petCategories'])->name('pet-registration.categories');
+    Route::post('/petRegistretion/categories', [MainPanelController::class, 'storePetCategory'])->name('pet-registration.categories.store');
+    Route::get('/petRegistretion/categories/{id}/edit', [MainPanelController::class, 'editPetCategory'])->name('pet-registration.categories.edit');
+    Route::put('/petRegistretion/categories/{id}', [MainPanelController::class, 'updatePetCategory'])->name('pet-registration.categories.update');
+    Route::delete('/petRegistretion/categories/{id}', [MainPanelController::class, 'deletePetCategory'])->name('pet-registration.categories.delete');
+    Route::put('/petRegistretion/categories/{id}/toggle-status', [MainPanelController::class, 'togglePetCategoryStatus'])->name('pet-registration.categories.toggle-status');
+
+
+    Route::post('/petRegistretion/breeds', [MainPanelController::class, 'storePetBreed'])->name('pet-registration.breeds.store');
+    Route::delete('/petRegistretion/breeds/{id}', [MainPanelController::class, 'deletePetBreed'])->name('pet-registration.breeds.delete');
     
     Route::get('/bookings', [MainPanelController::class, 'bookings'])->name('bookings');
     Route::get('/bookings/create', [MainPanelController::class, 'createBooking'])->name('bookings.create');
