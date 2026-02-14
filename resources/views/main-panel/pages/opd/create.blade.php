@@ -211,7 +211,7 @@
             <!-- Scrollable Service List -->
             <div class="mb-8">
                 <h4 class="text-xs font-bold text-gray-500 uppercase mb-3 px-1">Service Details</h4>
-                <div id="modalServiceItems" class="space-y-2 max-h-40 pr-2">
+                <div id="modalServiceItems" class="space-y-2 max-h-40 pr-2 overflow-y-auto">
                     <!-- Items injected here -->
                 </div>
             </div>

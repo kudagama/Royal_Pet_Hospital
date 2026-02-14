@@ -313,12 +313,20 @@ class MainPanelController extends Controller
 
     public function listOPD()
     {
-        return view('main-panel.pages.opd.list');
+        $opdVisits = OpdVisit::with('pet', 'services')->latest()->get();
+        return view('main-panel.pages.opd.list', compact('opdVisits'));
+    }
+
+    public function showOPDDetails($id)
+    {
+        $visit = OpdVisit::with(['pet', 'services'])->findOrFail($id);
+        return response()->json($visit);
     }
 
     public function ward()
     {
-        return view('main-panel.pages.ward.index');
+        $pets = \App\Models\Pet::select('id', 'name', 'code')->get();
+        return view('main-panel.pages.ward.index', compact('pets'));
     }
 
     public function salon()
