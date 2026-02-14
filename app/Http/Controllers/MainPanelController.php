@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\PetCategory;
 use App\Models\PetBreed;
 use App\Models\Pet;
+use App\Models\OpdVisit;
+use App\Models\OpdService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MainPanelController extends Controller
 {
@@ -228,7 +231,84 @@ class MainPanelController extends Controller
 
     public function createOPD()
     {
-        return view('main-panel.pages.opd.create');
+        $pets = Pet::select('id', 'name', 'code', 'owner_name')->get();
+        return view('main-panel.pages.opd.create', compact('pets'));
+    }
+
+    public function storeOPD(Request $request)
+    {
+        $request->validate([
+            'pet_id' => 'required|exists:pets,id',
+            'visit_date' => 'required|date',
+            'services' => 'required|array|min:1',
+            'services.*.title' => 'required|string',
+            'services.*.price' => 'required|numeric|min:0',
+            'services.*.description' => 'nullable|string',
+            // touchPanelImage is optional and handled as string (base64)
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Generate Code
+            $lastVisit = OpdVisit::latest()->first();
+            $nextId = $lastVisit ? $lastVisit->id + 1 : 1;
+            $visitRef = 'OPD' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+            $totalAmount = collect($request->services)->sum('price');
+
+            $visit = OpdVisit::create([
+                'visit_ref' => $visitRef,
+                'pet_id' => $request->pet_id,
+                'visit_date' => $request->visit_date,
+                'total_amount' => $totalAmount,
+                'status' => 'pending',
+            ]);
+
+            foreach ($request->services as $service) {
+                OpdService::create([
+                    'opd_visit_id' => $visit->id,
+                    'service_title' => $service['title'],
+                    'price' => $service['price'],
+                    'description' => $service['description'] ?? null,
+                    'touch_panel_image' => $service['touchPanelImage'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD saved successfully',
+                'entry' => $visit->load('services', 'pet')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error saving OPD: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateOPDAdvance(Request $request, $id)
+    {
+        $request->validate([
+            'advance_amount' => 'required|numeric|min:0',
+        ]);
+
+        $visit = OpdVisit::findOrFail($id);
+        $visit->update([
+            'advance_amount' => $request->advance_amount,
+            // Status might change? Maybe 'billed' or 'partial'? Let's keep pending or change to 'billed' if full?
+            // For now just update amount.
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Advance updated successfully',
+        ]);
     }
 
     public function listOPD()

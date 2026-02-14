@@ -49,11 +49,13 @@
                     <label for="pet_id" class="block mb-2 text-sm font-bold text-gray-700">Patient (Pet Name/ID)
                         *</label>
                     <div class="relative">
-                        <select id="pet_id"
+                        <select id="pet_id" name="pet_id"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none appearance-none"
                             required>
                             <option value="">-- Select Patient --</option>
-                            <!-- Options populated via JS -->
+                            @foreach($pets as $pet)
+                                <option value="{{ $pet->id }}">{{ $pet->name }} ({{ $pet->code }})</option>
+                            @endforeach
                         </select>
                         <i
                             class="bi bi-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
@@ -311,26 +313,6 @@
 <script>
     document.getElementById('visit_date').valueAsDate = new Date();
 
-    if (!localStorage.getItem('pets')) {
-        const testPets = [
-            { code: 'P001', name: 'Buddy', owner: 'John Doe', type: 'Dog' },
-            { code: 'P002', name: 'Luna', owner: 'Jane Smith', type: 'Cat' },
-            { code: 'P003', name: 'Max', owner: 'Mike Ross', type: 'Dog' },
-            { code: 'P004', name: 'Bella', owner: 'Rachel Green', type: 'Bird' },
-            { code: 'P005', name: 'Charlie', owner: 'Emily Blunt', type: 'Cat' }
-        ];
-        localStorage.setItem('pets', JSON.stringify(testPets));
-    }
-
-    const pets = JSON.parse(localStorage.getItem('pets')) || [];
-    const petSelect = document.getElementById('pet_id');
-    pets.forEach(pet => {
-        const option = document.createElement('option');
-        option.value = pet.code;
-        option.textContent = `${pet.name} (${pet.code})`;
-        petSelect.appendChild(option);
-    });
-
     let services = [];
 
     function addService() {
@@ -419,22 +401,32 @@
         if (!petId || !visitDate) return alert('Please select a pet and visit date');
         if (services.length === 0 && !confirm("No services added. Continue?")) return;
 
-        const opdEntries = JSON.parse(localStorage.getItem('opd_entries')) || [];
-        const entryCode = 'OPD' + String(opdEntries.length + 1).padStart(5, '0');
-        const totalAmount = services.reduce((sum, s) => sum + parseFloat(s.price), 0);
-
-        const entry = {
-            code: entryCode,
-            petId: petId,
-            visitDate: visitDate,
-            services: services,
-            totalAmount: totalAmount.toFixed(2),
-            createdAt: new Date().toISOString()
+        const payload = {
+            pet_id: petId,
+            visit_date: visitDate,
+            services: services
         };
 
-        opdEntries.push(entry);
-        localStorage.setItem('opd_entries', JSON.stringify(opdEntries));
-        showBillModal(entry, totalAmount);
+        fetch("{{ route('opd.store') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                showBillModal(data.entry, parseFloat(data.entry.total_amount));
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving.');
+        });
     }
 
     let currentEntry = null;
@@ -442,13 +434,10 @@
     function showBillModal(entry, total) {
         currentEntry = entry;
         document.getElementById('modalTotalAmount').innerText = total.toFixed(2);
-        document.getElementById('modalRef').innerText = entry.code;
+        document.getElementById('modalRef').innerText = entry.visit_ref;
         document.getElementById('modalAdvance').value = '';
         document.getElementById('modalBalance').innerText = total.toFixed(2);
-
-        const petSelect = document.getElementById('pet_id');
-        const petName = petSelect.options[petSelect.selectedIndex].text;
-        document.getElementById('modalPetName').innerText = petName;
+        document.getElementById('modalPetName').innerText = entry.pet.name;
 
         const list = document.getElementById('modalServiceItems');
         list.innerHTML = '';
@@ -457,7 +446,7 @@
             const row = document.createElement('div');
             row.className = "flex justify-between text-sm py-2 border-b border-gray-100 last:border-0";
             row.innerHTML = `
-                <span class="text-gray-700 truncate w-2/3 font-medium">${s.title}</span>
+                <span class="text-gray-700 truncate w-2/3 font-medium">${s.service_title}</span>
                 <span class="font-mono text-gray-900">${s.price}</span>
             `;
             list.appendChild(row);
@@ -472,7 +461,7 @@
     }
 
     function calculateBalance() {
-        const total = parseFloat(currentEntry.totalAmount) || 0;
+        const total = parseFloat(currentEntry.total_amount) || 0;
         const advance = parseFloat(document.getElementById('modalAdvance').value) || 0;
         const balance = total - advance;
         document.getElementById('modalBalance').innerText = balance.toFixed(2);
@@ -480,15 +469,27 @@
 
     function proceedToBilling() {
         const advance = parseFloat(document.getElementById('modalAdvance').value) || 0;
-        if (advance > 0 && currentEntry) {
-            const opdEntries = JSON.parse(localStorage.getItem('opd_entries')) || [];
-            const idx = opdEntries.findIndex(e => e.code === currentEntry.code);
-            if (idx !== -1) {
-                opdEntries[idx].advanceAmount = advance.toFixed(2);
-                localStorage.setItem('opd_entries', JSON.stringify(opdEntries));
-            }
-        }
-        window.location.href = "{{ route('final-billing') }}";
+        
+        fetch("{{ url('/main-panel/opd/update-advance') }}/" + currentEntry.id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ advance_amount: advance })
+        })
+        .then(res => res.json())
+        .then(data => {
+             if(data.success) {
+                window.location.href = "{{ route('final-billing') }}";
+             } else {
+                 alert('Failed to update advance payment');
+             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating payment.');
+        });
     }
 
     function resetForm() {
